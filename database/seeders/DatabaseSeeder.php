@@ -48,7 +48,7 @@ class DatabaseSeeder extends Seeder
             // Page 1 (8 Items persis seperti gambar mockup)
             [
                 'category_id' => $catKeramik->id,
-                'name' => 'Granit 60×60 Glazed Polished Carrara White',
+                'name' => 'Granit 60x60 Glazed Polished Carrara White',
                 'slug' => 'granit-60x60-glazed-polished-carrara-white',
                 'price' => 195000,
                 'sale_unit' => 'dus',
@@ -144,7 +144,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'category_id' => $catKeramik->id,
-                'name' => 'Keramik Dinding 25×40 Glossy Embossed Bevel',
+                'name' => 'Keramik Dinding 25x40 Glossy Embossed Bevel',
                 'slug' => 'keramik-dinding-25x40-glossy-embossed-bevel',
                 'price' => 76500,
                 'sale_unit' => 'dus',
@@ -197,7 +197,7 @@ class DatabaseSeeder extends Seeder
             // Keramik (6 more items => Total Keramik = 8)
             [
                 'category_id' => $catKeramik->id,
-                'name' => 'Granit 80×80 Super Glossy Cream Polished',
+                'name' => 'Granit 80x80 Super Glossy Cream Polished',
                 'slug' => 'granit-80x80-super-glossy-cream',
                 'price' => 285000,
                 'sale_unit' => 'dus',
@@ -216,7 +216,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'category_id' => $catKeramik->id,
-                'name' => 'Keramik Lantai 40×40 Rustic Anti Selip',
+                'name' => 'Keramik Lantai 40x40 Rustic Anti Selip',
                 'slug' => 'keramik-lantai-40x40-rustic-anti-selip',
                 'price' => 68000,
                 'sale_unit' => 'dus',
@@ -235,7 +235,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'category_id' => $catKeramik->id,
-                'name' => 'Keramik Dinding Subway Tile White Bevel 10×20',
+                'name' => 'Keramik Dinding Subway Tile White Bevel 10x20',
                 'slug' => 'keramik-dinding-subway-tile-white-bevel-10x20',
                 'price' => 95000,
                 'sale_unit' => 'dus',
@@ -254,7 +254,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'category_id' => $catKeramik->id,
-                'name' => 'Plin Keramik Lantai 10×60 Bevel Bullnose',
+                'name' => 'Plin Keramik Lantai 10x60 Bevel Bullnose',
                 'slug' => 'plin-keramik-lantai-10x60-bevel-bullnose',
                 'price' => 18000,
                 'sale_unit' => 'keping',
@@ -270,7 +270,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'category_id' => $catKeramik->id,
-                'name' => 'Granit Dinding Travertine Beige 60×120',
+                'name' => 'Granit Dinding Travertine Beige 60x120',
                 'slug' => 'granit-dinding-travertine-beige-60x120',
                 'price' => 380000,
                 'sale_unit' => 'dus',
@@ -289,7 +289,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'category_id' => $catKeramik->id,
-                'name' => 'Stepnosing Granit Tangga Anti Selip 10×60',
+                'name' => 'Stepnosing Granit Tangga Anti Selip 10x60',
                 'slug' => 'stepnosing-granit-tangga-anti-selip-10x60',
                 'price' => 32000,
                 'sale_unit' => 'keping',
