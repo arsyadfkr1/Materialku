@@ -87,32 +87,6 @@ if (typeof window !== 'undefined') {
             </div>
         </transition>
 
-        <!-- Top Announcement Bar -->
-        <div class="bg-secondary-900 text-slate-300 text-xs py-2 px-4 border-b border-secondary-800">
-            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
-                <div class="flex items-center gap-2 text-center sm:text-left">
-                    <span class="inline-flex items-center gap-1.5 bg-primary/20 text-primary-300 px-2 py-0.5 rounded font-semibold text-[11px] uppercase tracking-wider">
-                        Armada Mandiri
-                    </span>
-                    <span>Pengiriman langsung via armada toko (Truk/Pickup) • Tanpa perlu daftar akun</span>
-                </div>
-                <div class="flex items-center gap-4 text-slate-300">
-                    <a
-                        :href="`https://wa.me/${setting?.store_whatsapp || '6281234567890'}`"
-                        target="_blank"
-                        class="inline-flex items-center gap-1.5 hover:text-white transition"
-                    >
-                        <MessageSquare class="w-3.5 h-3.5 text-tertiary-500" />
-                        <span>WhatsApp Toko: +{{ setting?.store_whatsapp || '6281234567890' }}</span>
-                    </a>
-                    <span class="hidden md:inline text-secondary-600">|</span>
-                    <Link :href="route('login')" class="hover:text-white transition hidden md:inline">
-                        Masuk Admin
-                    </Link>
-                </div>
-            </div>
-        </div>
-
         <!-- Main Header -->
         <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -467,6 +441,8 @@ if (typeof window !== 'undefined') {
                 <div class="pt-8 border-t border-secondary-800 text-[11px] text-slate-500 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p>
                         © 2026 <strong>MATERIALKU</strong>. Proyek Akhir Pemrograman Web 2. All rights reserved.
+                        <span class="mx-2">•</span>
+                        <Link :href="route('login')" class="hover:text-slate-300 transition">Login Admin</Link>
                     </p>
                     <p class="text-center md:text-right max-w-xl italic">
                         Batas tanggung jawab: Hasil kalkulator adalah estimasi pembelian belanja, bukan jaminan kecukupan mutlak atau rekomendasi struktur profesional.
