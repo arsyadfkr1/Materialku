@@ -30,9 +30,16 @@ class CatalogController extends Controller
 
         // Category filter
         if ($categorySlug = $request->input('category')) {
-            $query->whereHas('category', function ($q) use ($categorySlug) {
-                $q->where('slug', $categorySlug);
-            });
+            if ($categorySlug !== 'all') {
+                $query->whereHas('category', function ($q) use ($categorySlug) {
+                    $q->where('slug', $categorySlug);
+                });
+            }
+        }
+
+        // Available only toggle
+        if ($request->boolean('available_only')) {
+            $query->where('stock_badge', 'Tersedia');
         }
 
         // Calculator only
@@ -41,7 +48,7 @@ class CatalogController extends Controller
         }
 
         // Sorting
-        $sort = $request->input('sort', 'newest');
+        $sort = $request->input('sort', 'relevance');
         switch ($sort) {
             case 'price_asc':
                 $query->orderBy('price', 'asc');
@@ -53,16 +60,18 @@ class CatalogController extends Controller
                 $query->orderBy('name', 'asc');
                 break;
             default:
-                $query->latest();
+                $query->orderBy('id', 'asc'); // Keep consistent order
                 break;
         }
 
-        $materials = $query->paginate(12)->withQueryString();
+        $totalActive = Material::where('is_active', true)->count();
+        $materials = $query->paginate(8)->withQueryString();
 
         return Inertia::render('Catalog/Index', [
             'materials' => $materials,
             'categories' => $categories,
-            'filters' => $request->only(['search', 'category', 'calculator_only', 'sort']),
+            'totalActive' => $totalActive,
+            'filters' => $request->only(['search', 'category', 'available_only', 'calculator_only', 'sort']),
             'setting' => $setting,
         ]);
     }

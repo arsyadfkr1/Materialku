@@ -6,17 +6,30 @@ use App\Models\Category;
 use App\Models\Material;
 use App\Models\Order;
 use App\Services\CheckoutService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class CheckoutServiceTest extends TestCase
 {
     private CheckoutService $checkoutService;
+    private Material $material;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->checkoutService = new CheckoutService();
+
+        $category = Category::firstOrCreate(['slug' => 'test-cat'], ['name' => 'Kategori Test']);
+        $this->material = Material::firstOrCreate(
+            ['slug' => 'material-test-resmi'],
+            [
+                'category_id' => $category->id,
+                'name' => 'Material Uji Harga Resmi',
+                'price' => 85000,
+                'sale_unit' => 'dus',
+                'is_active' => true,
+                'availability_status' => 'available',
+            ]
+        );
     }
 
     /**
@@ -24,18 +37,16 @@ class CheckoutServiceTest extends TestCase
      */
     public function test_uat_04_server_enforces_official_price(): void
     {
-        $material = Material::where('slug', 'keramik-granit-motif-marmer-60x60')->first();
-
         $customerData = [
             'customer_name' => 'Budi Santoso',
             'whatsapp' => '08123456789',
             'address' => 'Jl. Mawar No. 10',
-            'idempotency_key' => 'key-test-04',
+            'idempotency_key' => 'key-test-04-' . uniqid(),
         ];
 
         $cartItems = [
             [
-                'material_id' => $material->id,
+                'material_id' => $this->material->id,
                 'quantity' => 2,
                 // User coba manipulasi harga fiktif di client
                 'price' => 1000, 
@@ -55,18 +66,16 @@ class CheckoutServiceTest extends TestCase
      */
     public function test_uat_05_idempotency_prevents_duplicate_orders(): void
     {
-        $material = Material::first();
-
         $customerData = [
             'customer_name' => 'Ahmad',
             'whatsapp' => '08129876543',
             'address' => 'Jl. Melati No. 5',
-            'idempotency_key' => 'unique-idem-key-123',
+            'idempotency_key' => 'unique-idem-key-' . uniqid(),
         ];
 
         $cartItems = [
             [
-                'material_id' => $material->id,
+                'material_id' => $this->material->id,
                 'quantity' => 1,
             ]
         ];
