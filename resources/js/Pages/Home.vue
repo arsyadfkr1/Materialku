@@ -1064,22 +1064,31 @@ const addProductDirect = (product) => {
                             </div>
                         </div>
 
-                        <!-- Warehouse Card Illustration -->
-                        <div class="lg:col-span-5 bg-gradient-to-br from-secondary-900 to-secondary-950 text-white p-6 rounded-2xl border border-secondary-800 flex flex-col justify-between h-full min-h-[260px]">
-                            <div class="space-y-2">
-                                <span class="text-[11px] font-bold text-primary tracking-widest uppercase block">
-                                    GUDANG PUSAT
+                        <!-- Warehouse Photo Card (Sesuai Wireframe Toko & Gudang) -->
+                        <div class="lg:col-span-5 relative rounded-2xl overflow-hidden shadow-lg border border-slate-200 group h-full min-h-[280px] bg-slate-900">
+                            <img
+                                src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=900&auto=format&fit=crop"
+                                alt="Gedung Pusat Toko TB. Mandiri Sejahtera Abadi"
+                                class="w-full h-full object-cover min-h-[280px] group-hover:scale-105 transition duration-500 opacity-90"
+                            />
+                            <!-- Elegant Dark Gradient Overlay (Hanya di bawah untuk keterbacaan teks) -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+
+                            <!-- Badges Overlay -->
+                            <div class="absolute top-4 left-4">
+                                <span class="bg-primary/95 text-white text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
+                                    GUDANG PUSAT 500+ TON
                                 </span>
-                                <h3 class="font-headline font-bold text-lg text-white">
-                                    Stok Keramik & Semen Siap Kirim Hari Ini
-                                </h3>
-                                <p class="text-xs text-slate-400 leading-relaxed">
-                                    Kapasitas penyimpanan 500+ ton bahan semen dan 2.000+ dus keramik bergaransi anti cacat.
-                                </p>
                             </div>
-                            <div class="pt-6 border-t border-secondary-800 flex items-center justify-between text-xs text-slate-300">
-                                <span>Gudang Siap Kirim: <strong class="text-tertiary-400">Online</strong></span>
-                                <span>Armada: <strong class="text-white">3 Truk, 2 Pickup</strong></span>
+
+                            <div class="absolute bottom-4 left-4 right-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                                <span class="bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700/80 font-bold text-xs text-white shadow-md">
+                                    🏢 Gedung Pusat Toko TB. Mandiri Sejahtera
+                                </span>
+                                <span class="bg-tertiary-600/95 text-white px-2.5 py-1 rounded-lg font-bold text-[11px] shadow-sm flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                                    Stok Siap Kirim
+                                </span>
                             </div>
                         </div>
                     </div>
