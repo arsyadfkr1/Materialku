@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\CalculatorController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderSummaryController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ShippingInfoController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -13,6 +15,9 @@ use Inertia\Inertia;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/katalog', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/katalog/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
+Route::get('/api/search/suggestions', [CatalogController::class, 'suggestions'])->name('api.search.suggestions');
+Route::get('/informasi-pengiriman', [ShippingInfoController::class, 'index'])->name('shipping.info');
+Route::get('/keranjang', [CartController::class, 'index'])->name('cart.index');
 
 // Kalkulator Material
 Route::get('/kalkulator', [CalculatorController::class, 'index'])->name('calculator.index');

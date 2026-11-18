@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import { useCartStore } from '@/Stores/cartStore';
 import {
@@ -18,7 +18,8 @@ import {
     Menu,
     CheckCircle2,
     Building2,
-    ShieldCheck
+    ShieldCheck,
+    Loader2
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -27,7 +28,7 @@ const props = defineProps({
         default: () => ({
             store_name: 'MATERIALKU',
             store_whatsapp: '6281234567890',
-            store_address: 'Jl. Merdeka No. 123, Kota Bandung',
+            store_address: 'Jl. Soekarno-Hatta No. 88, By Pass, Kota Bandar Lampung',
         }),
     },
 });
@@ -38,6 +39,79 @@ const isMobileMenuOpen = ref(false);
 const searchQuery = ref('');
 const toastMessage = ref('');
 const showToast = ref(false);
+
+// --- Live Search Autocomplete State ---
+const searchResults = ref([]);
+const searchTotal = ref(0);
+const isLoadingSearch = ref(false);
+const isSearchOpen = ref(false);
+const searchContainerRef = ref(null);
+const mobileSearchContainerRef = ref(null);
+let searchDebounceTimer = null;
+
+const onSearchInput = () => {
+    const q = searchQuery.value.trim();
+    if (q.length < 2) {
+        searchResults.value = [];
+        searchTotal.value = 0;
+        isSearchOpen.value = false;
+        isLoadingSearch.value = false;
+        return;
+    }
+
+    isLoadingSearch.value = true;
+    isSearchOpen.value = true;
+
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(async () => {
+        try {
+            const res = await fetch(`/api/search/suggestions?q=${encodeURIComponent(q)}`);
+            if (res.ok) {
+                const data = await res.json();
+                searchResults.value = data.materials || [];
+                searchTotal.value = data.total_count || 0;
+            }
+        } catch (e) {
+            console.error('Error fetching live search suggestions:', e);
+        } finally {
+            isLoadingSearch.value = false;
+        }
+    }, 250);
+};
+
+const closeSearch = () => {
+    isSearchOpen.value = false;
+};
+
+const selectMaterial = (item) => {
+    isSearchOpen.value = false;
+    searchQuery.value = '';
+    isMobileMenuOpen.value = false;
+    router.get(route('catalog.show', item.slug || item.id));
+};
+
+const goToFullSearch = () => {
+    isSearchOpen.value = false;
+    isMobileMenuOpen.value = false;
+    handleSearch();
+};
+
+const handleClickOutside = (event) => {
+    const isInsideDesktop = searchContainerRef.value && searchContainerRef.value.contains(event.target);
+    const isInsideMobile = mobileSearchContainerRef.value && mobileSearchContainerRef.value.contains(event.target);
+    if (!isInsideDesktop && !isInsideMobile) {
+        isSearchOpen.value = false;
+    }
+};
+
+onMounted(() => {
+    document.addEventListener('click', handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', handleClickOutside);
+    clearTimeout(searchDebounceTimer);
+});
 
 const handleSearch = () => {
     if (searchQuery.value.trim()) {
@@ -106,16 +180,22 @@ if (typeof window !== 'undefined') {
                         </div>
                     </Link>
 
-                    <!-- Search Bar (Desktop) -->
-                    <div class="hidden md:flex flex-1 max-w-xl mx-4">
-                        <form @submit.prevent="handleSearch" class="relative w-full">
+                    <!-- Search Bar (Desktop with Live Autocomplete) -->
+                    <div ref="searchContainerRef" class="hidden md:flex flex-1 max-w-xl mx-4 relative">
+                        <form @submit.prevent="goToFullSearch" class="relative w-full">
                             <input
                                 type="text"
                                 v-model="searchQuery"
+                                @input="onSearchInput"
+                                @focus="onSearchInput"
+                                @keydown.esc="closeSearch"
                                 placeholder="Cari semen, keramik 60x60, cat tembok..."
                                 class="w-full pl-11 pr-24 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition outline-none"
                             />
                             <Search class="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                            <div v-if="isLoadingSearch" class="absolute right-20 top-1/2 -translate-y-1/2">
+                                <Loader2 class="w-4 h-4 text-primary animate-spin" />
+                            </div>
                             <button
                                 type="submit"
                                 class="absolute right-1.5 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-secondary-900 text-white text-xs font-semibold rounded-lg hover:bg-secondary-800 transition"
@@ -123,6 +203,95 @@ if (typeof window !== 'undefined') {
                                 Cari
                             </button>
                         </form>
+
+                        <!-- Autocomplete Popover Dropdown (Desktop) -->
+                        <div
+                            v-if="isSearchOpen && searchQuery.trim().length >= 2"
+                            class="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 overflow-hidden"
+                        >
+                            <!-- Results List -->
+                            <div v-if="searchResults.length > 0" class="divide-y divide-slate-100 max-h-[380px] overflow-y-auto">
+                                <div class="px-4 py-2.5 bg-slate-50 text-[11px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                                    <span>Material Ditemukan ({{ searchTotal }})</span>
+                                    <span class="text-slate-400 font-normal">Klik untuk lihat rincian</span>
+                                </div>
+                                <button
+                                    v-for="item in searchResults"
+                                    :key="item.id"
+                                    type="button"
+                                    @click="selectMaterial(item)"
+                                    class="w-full p-3.5 flex items-center justify-between gap-3 text-left hover:bg-slate-50 transition group"
+                                >
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <div class="w-11 h-11 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center">
+                                            <img
+                                                v-if="item.image_path"
+                                                :src="item.image_path"
+                                                :alt="item.name"
+                                                class="w-full h-full object-cover group-hover:scale-105 transition"
+                                            />
+                                            <Building2 v-else class="w-5 h-5 text-slate-400" />
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-xs font-bold text-secondary-900 group-hover:text-primary transition truncate">
+                                                {{ item.name }}
+                                            </p>
+                                            <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                                                <span class="bg-slate-100 text-secondary-700 px-1.5 py-0.2 rounded font-medium text-[10px]">
+                                                    {{ item.category?.name || 'Material' }}
+                                                </span>
+                                                <span v-if="item.spec_badge" class="text-slate-400 text-[10px]">
+                                                    {{ item.spec_badge }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right shrink-0">
+                                        <p class="text-xs font-extrabold text-primary">
+                                            {{ formatRupiah(item.price) }}
+                                        </p>
+                                        <p class="text-[10px] text-slate-400">
+                                            per {{ item.sale_unit }}
+                                        </p>
+                                    </div>
+                                </button>
+
+                                <!-- Footer: View All Link -->
+                                <button
+                                    type="button"
+                                    @click="goToFullSearch"
+                                    class="w-full p-3 text-center bg-slate-50 hover:bg-primary-50 text-xs font-bold text-primary transition flex items-center justify-center gap-1.5 border-t border-slate-100"
+                                >
+                                    <span>Lihat Semua {{ searchTotal }} Material untuk "{{ searchQuery }}"</span>
+                                    <ArrowRight class="w-3.5 h-3.5" />
+                                </button>
+                            </div>
+
+                            <!-- No Results State -->
+                            <div v-else-if="!isLoadingSearch" class="p-6 text-center">
+                                <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
+                                    <Search class="w-5 h-5" />
+                                </div>
+                                <p class="text-xs font-bold text-secondary-800">
+                                    Material Tidak Ditemukan
+                                </p>
+                                <p class="text-[11px] text-slate-500 mt-0.5 max-w-xs mx-auto">
+                                    Tidak ada material yang cocok dengan kata kunci "{{ searchQuery }}".
+                                </p>
+                                <div class="mt-3 flex flex-wrap items-center justify-center gap-1.5 text-[11px]">
+                                    <span class="text-slate-400">Coba kata kunci:</span>
+                                    <button
+                                        v-for="kw in ['Semen', 'Keramik', 'Cat Tembok', 'Besi Beton']"
+                                        :key="kw"
+                                        type="button"
+                                        @click="searchQuery = kw; onSearchInput();"
+                                        class="px-2 py-0.5 rounded bg-slate-100 hover:bg-primary-50 hover:text-primary text-secondary-700 transition font-medium"
+                                    >
+                                        {{ kw }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Right Action Buttons -->
@@ -132,19 +301,19 @@ if (typeof window !== 'undefined') {
                             class="hidden lg:inline-flex items-center gap-2 px-3.5 py-2 text-sm font-semibold text-primary bg-primary-50 rounded-xl hover:bg-primary-100 transition border border-primary/20"
                         >
                             <Calculator class="w-4 h-4 text-primary" />
-                            <span>Kalkulator Material</span>
+                            <span>Kalkulator Proyek</span>
                         </Link>
 
                         <!-- Cart Button with Counter -->
-                        <button
-                            @click="isCartOpen = true"
+                        <Link
+                            :href="route('cart.index')"
                             class="relative flex items-center gap-2.5 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-secondary-900 rounded-xl transition border border-slate-200 font-medium"
                         >
                             <div class="relative">
                                 <ShoppingCart class="w-5 h-5 text-secondary-800" />
                                 <span
                                     v-if="cart.totalCount > 0"
-                                    class="absolute -top-2 -right-2 bg-primary text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center animate-pulse"
+                                    class="absolute -top-2 -right-2 bg-primary text-white text-[11px] font-bold w-5 h-5 rounded-full flex items-center justify-center"
                                 >
                                     {{ cart.totalCount }}
                                 </span>
@@ -152,7 +321,7 @@ if (typeof window !== 'undefined') {
                             <span class="hidden sm:inline text-xs font-bold text-secondary-800">
                                 {{ formatRupiah(cart.totalPrice) }}
                             </span>
-                        </button>
+                        </Link>
 
                         <!-- Mobile Menu Toggle -->
                         <button
@@ -168,29 +337,38 @@ if (typeof window !== 'undefined') {
                 <nav class="hidden md:flex items-center gap-8 py-3 text-sm font-semibold border-t border-slate-100">
                     <Link
                         :href="route('home')"
-                        :class="route().current('home') ? 'text-primary border-b-2 border-primary pb-1' : 'text-slate-600 hover:text-primary transition'"
+                        :class="route().current('home') ? 'text-primary border-b-2 border-primary pb-1 font-bold' : 'text-slate-600 hover:text-primary transition'"
                     >
                         Beranda
                     </Link>
                     <Link
                         :href="route('catalog.index')"
-                        :class="route().current('catalog.*') ? 'text-primary border-b-2 border-primary pb-1' : 'text-slate-600 hover:text-primary transition'"
+                        :class="route().current('catalog.*') ? 'text-primary border-b-2 border-primary pb-1 font-bold' : 'text-slate-600 hover:text-primary transition'"
                     >
                         Katalog Material
                     </Link>
                     <Link
                         :href="route('calculator.index')"
-                        :class="route().current('calculator.*') ? 'text-primary border-b-2 border-primary pb-1' : 'text-slate-600 hover:text-primary transition'"
+                        :class="route().current('calculator.*') ? 'text-primary border-b-2 border-primary pb-1 font-bold' : 'text-slate-600 hover:text-primary transition'"
                     >
                         Kalkulator Proyek
                     </Link>
-                    <a href="#cara-pesan" class="text-slate-600 hover:text-primary transition">
+                    <a
+                        :href="route().current('home') ? '#cara-pesan' : route('home') + '#cara-pesan'"
+                        class="text-slate-600 hover:text-primary transition"
+                    >
                         Cara Pemesanan
                     </a>
-                    <a href="#armada-pengiriman" class="text-slate-600 hover:text-primary transition">
-                        Armada Pengiriman
-                    </a>
-                    <a href="#kontak-toko" class="text-slate-600 hover:text-primary transition">
+                    <Link
+                        :href="route('shipping.info')"
+                        :class="route().current('shipping.info') ? 'text-primary border-b-2 border-primary pb-1 font-bold' : 'text-slate-600 hover:text-primary transition'"
+                    >
+                        Informasi Pengiriman
+                    </Link>
+                    <a
+                        :href="route().current('home') ? '#kontak-toko' : route('home') + '#kontak-toko'"
+                        class="text-slate-600 hover:text-primary transition"
+                    >
                         Hubungi Toko
                     </a>
                 </nav>
@@ -198,24 +376,71 @@ if (typeof window !== 'undefined') {
 
             <!-- Mobile Dropdown Menu -->
             <div v-if="isMobileMenuOpen" class="md:hidden border-t border-slate-200 px-4 py-3 bg-white space-y-3">
-                <form @submit.prevent="handleSearch" class="relative w-full">
-                    <input
-                        type="text"
-                        v-model="searchQuery"
-                        placeholder="Cari material..."
-                        class="w-full pl-10 pr-20 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg outline-none"
-                    />
-                    <Search class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                    <button type="submit" class="absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1 bg-secondary-900 text-white text-xs font-semibold rounded">
-                        Cari
-                    </button>
-                </form>
+                <div ref="mobileSearchContainerRef" class="relative">
+                    <form @submit.prevent="goToFullSearch" class="relative w-full">
+                        <input
+                            type="text"
+                            v-model="searchQuery"
+                            @input="onSearchInput"
+                            @focus="onSearchInput"
+                            @keydown.esc="closeSearch"
+                            placeholder="Cari material..."
+                            class="w-full pl-10 pr-20 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg outline-none"
+                        />
+                        <Search class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <div v-if="isLoadingSearch" class="absolute right-16 top-1/2 -translate-y-1/2">
+                            <Loader2 class="w-3.5 h-3.5 text-primary animate-spin" />
+                        </div>
+                        <button type="submit" class="absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1 bg-secondary-900 text-white text-xs font-semibold rounded">
+                            Cari
+                        </button>
+                    </form>
+
+                    <!-- Mobile Autocomplete Popover -->
+                    <div
+                        v-if="isSearchOpen && searchQuery.trim().length >= 2"
+                        class="absolute left-0 right-0 top-full mt-1.5 bg-white rounded-xl border border-slate-200 shadow-xl z-50 overflow-hidden"
+                    >
+                        <div v-if="searchResults.length > 0" class="divide-y divide-slate-100 max-h-[300px] overflow-y-auto">
+                            <button
+                                v-for="item in searchResults"
+                                :key="item.id"
+                                type="button"
+                                @click="selectMaterial(item)"
+                                class="w-full p-3 flex items-center justify-between gap-2 text-left hover:bg-slate-50 transition"
+                            >
+                                <div class="min-w-0">
+                                    <p class="text-xs font-bold text-secondary-900 truncate">{{ item.name }}</p>
+                                    <p class="text-[10px] text-slate-500">{{ item.category?.name }} • {{ item.sale_unit }}</p>
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <p class="text-xs font-bold text-primary">{{ formatRupiah(item.price) }}</p>
+                                </div>
+                            </button>
+                            <button
+                                type="button"
+                                @click="goToFullSearch"
+                                class="w-full p-2.5 text-center bg-slate-50 text-xs font-bold text-primary transition flex items-center justify-center gap-1"
+                            >
+                                <span>Lihat Semua {{ searchTotal }} Hasil</span>
+                                <ArrowRight class="w-3.5 h-3.5" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <div class="flex flex-col gap-2 pt-2 text-sm font-semibold">
                     <Link :href="route('home')" class="py-2 text-slate-700 hover:text-primary">Beranda</Link>
                     <Link :href="route('catalog.index')" class="py-2 text-slate-700 hover:text-primary">Katalog Material</Link>
-                    <Link :href="route('calculator.index')" class="py-2 text-slate-700 hover:text-primary">Kalkulator Material</Link>
-                    <a href="#cara-pesan" class="py-2 text-slate-700 hover:text-primary">Cara Pemesanan</a>
-                    <a href="#kontak-toko" class="py-2 text-slate-700 hover:text-primary">Hubungi Toko</a>
+                    <Link :href="route('calculator.index')" class="py-2 text-slate-700 hover:text-primary">Kalkulator Proyek</Link>
+                    <Link :href="route('cart.index')" class="py-2 text-slate-700 hover:text-primary flex items-center justify-between">
+                        <span>Keranjang Belanja</span>
+                        <span v-if="cart.totalCount > 0" class="px-2 py-0.5 rounded-full bg-primary text-white text-xs font-bold">
+                            {{ cart.totalCount }}
+                        </span>
+                    </Link>
+                    <a :href="route().current('home') ? '#cara-pesan' : route('home') + '#cara-pesan'" class="py-2 text-slate-700 hover:text-primary">Cara Pemesanan</a>
+                    <Link :href="route('shipping.info')" class="py-2 text-slate-700 hover:text-primary">Informasi Pengiriman</Link>
+                    <a :href="route().current('home') ? '#kontak-toko' : route('home') + '#kontak-toko'" class="py-2 text-slate-700 hover:text-primary">Hubungi Toko</a>
                     <Link :href="route('login')" class="py-2 text-primary font-bold">Masuk Admin Toko</Link>
                 </div>
             </div>
@@ -348,11 +573,19 @@ if (typeof window !== 'undefined') {
                             </p>
                         </div>
 
-                        <div class="flex gap-2">
+                        <div class="flex flex-col gap-2">
+                            <Link
+                                :href="route('cart.index')"
+                                @click="isCartOpen = false"
+                                class="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-white border border-slate-300 hover:border-primary text-secondary-900 hover:text-primary font-bold text-xs rounded-xl transition"
+                            >
+                                <ShoppingCart class="w-3.5 h-3.5" />
+                                <span>Buka Halaman Keranjang Penuh</span>
+                            </Link>
                             <Link
                                 :href="route('checkout.index')"
                                 @click="isCartOpen = false"
-                                class="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-primary hover:bg-primary-600 text-white font-bold text-sm rounded-xl shadow-md shadow-primary/20 transition"
+                                class="w-full flex items-center justify-center gap-2 py-3 px-4 bg-primary hover:bg-primary-600 text-white font-bold text-sm rounded-xl shadow-md shadow-primary/20 transition"
                             >
                                 <span>Lanjut ke Form Checkout</span>
                                 <ArrowRight class="w-4 h-4" />
@@ -393,8 +626,8 @@ if (typeof window !== 'undefined') {
                             <li><Link :href="route('catalog.index')" class="hover:text-primary transition">Katalog Material Lengkap</Link></li>
                             <li><Link :href="route('calculator.index')" class="hover:text-primary transition">Kalkulator Kebutuhan Keramik</Link></li>
                             <li><Link :href="route('calculator.index')" class="hover:text-primary transition">Kalkulator Kebutuhan Cat</Link></li>
-                            <li><a href="#cara-pesan" class="hover:text-primary transition">Cara Pemesanan Tamu</a></li>
-                            <li><a href="#armada-pengiriman" class="hover:text-primary transition">Jadwal Kirim Armada Toko</a></li>
+                            <li><a :href="route('home') + '#cara-pesan'" class="hover:text-primary transition">Cara Pemesanan Tamu</a></li>
+                            <li><Link :href="route('shipping.info')" class="hover:text-primary transition">Informasi Pengiriman & Ongkir</Link></li>
                         </ul>
                     </div>
 

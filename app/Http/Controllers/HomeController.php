@@ -14,9 +14,9 @@ class HomeController extends Controller
     public function index(): Response
     {
         $setting = Setting::first() ?? Setting::create([
-            'store_name' => 'MATERIALKU',
+            'store_name' => 'TB. Mandiri Sejahtera Abadi',
             'store_whatsapp' => '6281234567890',
-            'store_address' => 'Jl. Merdeka No. 123, Kota Bandung',
+            'store_address' => 'Jl. Soekarno-Hatta No. 88, By Pass, Kota Bandar Lampung',
         ]);
 
         $categories = Category::withCount(['materials' => function ($query) {

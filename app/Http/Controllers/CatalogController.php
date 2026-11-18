@@ -47,6 +47,33 @@ class CatalogController extends Controller
             $query->where('calculator_enabled', true);
         }
 
+        // Price range filter
+        $priceRange = $request->input('price_range', 'all');
+        if ($priceRange === 'under_100k') {
+            $query->where('price', '<', 100000);
+        } elseif ($priceRange === '100k_250k') {
+            $query->whereBetween('price', [100000, 250000]);
+        } elseif ($priceRange === 'above_250k') {
+            $query->where('price', '>', 250000);
+        }
+
+        // Custom min price
+        if ($minPrice = $request->input('min_price')) {
+            $query->where('price', '>=', (float) $minPrice);
+        }
+
+        // Custom max price
+        if ($maxPrice = $request->input('max_price')) {
+            $query->where('price', '<=', (float) $maxPrice);
+        }
+
+        // Unit / Kemasan filter
+        if ($unit = $request->input('unit')) {
+            if ($unit !== 'all') {
+                $query->where('sale_unit', $unit);
+            }
+        }
+
         // Sorting
         $sort = $request->input('sort', 'relevance');
         switch ($sort) {
@@ -59,6 +86,9 @@ class CatalogController extends Controller
             case 'name_asc':
                 $query->orderBy('name', 'asc');
                 break;
+            case 'name_desc':
+                $query->orderBy('name', 'desc');
+                break;
             default:
                 $query->orderBy('id', 'asc'); // Keep consistent order
                 break;
@@ -66,12 +96,24 @@ class CatalogController extends Controller
 
         $totalActive = Material::where('is_active', true)->count();
         $materials = $query->paginate(8)->withQueryString();
+        $availableUnits = Material::where('is_active', true)->distinct()->pluck('sale_unit')->filter()->values();
 
         return Inertia::render('Catalog/Index', [
             'materials' => $materials,
             'categories' => $categories,
             'totalActive' => $totalActive,
-            'filters' => $request->only(['search', 'category', 'available_only', 'calculator_only', 'sort']),
+            'availableUnits' => $availableUnits,
+            'filters' => $request->only([
+                'search',
+                'category',
+                'available_only',
+                'calculator_only',
+                'price_range',
+                'min_price',
+                'max_price',
+                'unit',
+                'sort'
+            ]),
             'setting' => $setting,
         ]);
     }
@@ -91,6 +133,43 @@ class CatalogController extends Controller
             'material' => $material,
             'relatedMaterials' => $relatedMaterials,
             'setting' => $setting,
+        ]);
+    }
+
+    /**
+     * API Live Search Autocomplete Suggestions.
+     */
+    public function suggestions(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $q = trim((string) $request->input('q', ''));
+
+        if (mb_strlen($q) < 2) {
+            return response()->json([
+                'materials' => [],
+                'total_count' => 0,
+            ]);
+        }
+
+        $query = Material::with('category:id,name,slug')
+            ->where('is_active', true)
+            ->where(function ($sub) use ($q) {
+                $sub->where('name', 'like', "%{$q}%")
+                    ->orWhere('description', 'like', "%{$q}%")
+                    ->orWhere('spec_badge', 'like', "%{$q}%")
+                    ->orWhereHas('category', function ($catQuery) use ($q) {
+                        $catQuery->where('name', 'like', "%{$q}%");
+                    });
+            });
+
+        $totalCount = $query->count();
+
+        $materials = $query->select('id', 'category_id', 'name', 'slug', 'price', 'sale_unit', 'image_path', 'spec_badge', 'stock_badge')
+            ->limit(5)
+            ->get();
+
+        return response()->json([
+            'materials' => $materials,
+            'total_count' => $totalCount,
         ]);
     }
 }

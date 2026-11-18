@@ -27,12 +27,12 @@ class DatabaseSeeder extends Seeder
         );
 
         // 2. Settings Toko
-        Setting::firstOrCreate(
+        Setting::updateOrCreate(
             ['id' => 1],
             [
                 'store_name' => 'TB. Mandiri Sejahtera Abadi',
                 'store_whatsapp' => '6281234567890',
-                'store_address' => 'Jl. Raya Industri Timur No. 45, Kawasan Niaga Utama',
+                'store_address' => 'Jl. Soekarno-Hatta No. 88, By Pass, Kota Bandar Lampung',
                 'message_template' => "Halo Admin MATERIALKU, saya ingin mengonfirmasi pesanan berikut.\n\nKode: {ORDER_CODE}\nNama: {CUSTOMER_NAME}\n\nDetail material:\n{ORDER_ITEMS}\n\nEstimasi biaya material: {MATERIAL_TOTAL}\nOngkir belum termasuk.\n\nMohon konfirmasi ketersediaan, ongkir, dan cara pembayaran. Terima kasih.",
             ]
         );

@@ -732,7 +732,7 @@ const addProductDirect = (product) => {
         </section>
 
         <!-- 4. CARA PEMESANAN (3 LANGKAH BELANJA TANPA AKUN) -->
-        <section id="cara-pesan" class="py-20 bg-white border-b border-slate-200">
+        <section id="cara-pesan" class="py-20 bg-white border-b border-slate-200 scroll-mt-20">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center max-w-2xl mx-auto mb-16">
                     <span class="text-primary font-bold text-xs uppercase tracking-widest font-headline">
@@ -849,21 +849,101 @@ const addProductDirect = (product) => {
             </div>
         </section>
 
-        <!-- 5. ARMADA PENGIRIMAN MANDIRI TOKO -->
-        <section id="armada-pengiriman" class="py-16 bg-[#F8FAFC] border-b border-slate-200">
+        <!-- 5. INFORMASI PENGIRIMAN & KETENTUAN LOGISTIK -->
+        <section id="informasi-pengiriman" class="py-16 bg-[#F8FAFC] border-b border-slate-200 scroll-mt-20">
+            <!-- Anchor alias for backward compatibility -->
+            <div id="armada-pengiriman" class="-mt-20 pt-20"></div>
+
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-12">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
                     <div>
                         <span class="text-primary font-bold text-xs uppercase tracking-widest font-headline">
-                            LOGISTIK AMAN & TEPAT WAKTU
+                            LAYANAN LOGISTIK & PENGIRIMAN
                         </span>
                         <h2 class="font-headline font-extrabold text-2xl sm:text-3xl text-secondary-900 mt-1">
-                            Armada Pengiriman Mandiri Toko
+                            Informasi Pengiriman & Ketentuan Ongkir
                         </h2>
                     </div>
-                    <p class="text-xs text-slate-500 max-w-md">
-                        Material berat kami antar langsung dengan armada mandiri toko tanpa kurir pihak ketiga untuk menjamin keutuhan semen, cat, dan keramik.
-                    </p>
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                        <p class="text-xs text-slate-500 max-w-sm">
+                            Informasi lengkap area layanan pengiriman, skema ongkir transparan, dan armada mandiri toko tanpa kurir pihak ketiga untuk menjamin keutuhan semen, cat, dan keramik.
+                        </p>
+                        <Link
+                            :href="route('shipping.info')"
+                            class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-white border border-slate-300 hover:border-primary text-secondary-900 hover:text-primary text-xs font-bold rounded-xl transition shadow-xs shrink-0"
+                        >
+                            <span>Panduan Lengkap & FAQ</span>
+                            <ArrowRight class="w-3.5 h-3.5 text-primary" />
+                        </Link>
+                    </div>
+                </div>
+
+                <!-- 3 Pilar Informasi Pengiriman (Area Layanan, Ketentuan Ongkir, Ketentuan Kirim) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- Pilar 1: Area Layanan -->
+                    <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-primary-50 text-primary flex items-center justify-center mb-3">
+                                <MapPin class="w-5 h-5" />
+                            </div>
+                            <h3 class="font-headline font-bold text-base text-secondary-900 mb-1.5">
+                                Area Layanan Toko
+                            </h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Melayani pengiriman ke seluruh <span class="font-semibold text-secondary-900">Kota Bandar Lampung, Kab. Lampung Selatan, dan Kab. Pesawaran</span> dalam radius s/d 25 km langsung ke lokasi proyek atau rumah.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-[11px] text-tertiary-700 font-bold">
+                            <CheckCircle2 class="w-4 h-4 shrink-0 text-tertiary-600" />
+                            <span>Jangkauan Luas & Tepat Alamat</span>
+                        </div>
+                    </div>
+
+                    <!-- Pilar 2: Ketentuan Ongkir -->
+                    <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-tertiary-50 text-tertiary-700 flex items-center justify-center mb-3">
+                                <Truck class="w-5 h-5" />
+                            </div>
+                            <h3 class="font-headline font-bold text-base text-secondary-900 mb-1.5">
+                                Biaya & Ketentuan Ongkir
+                            </h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Ongkir transparan dihitung berdasarkan jarak tempuh armada toko. <span class="font-semibold text-secondary-900">Gratis Ongkir</span> untuk pembelanjaan proyek tertentu dalam radius 5 km dari gudang pusat.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-[11px] text-primary font-bold">
+                            <CheckCircle2 class="w-4 h-4 shrink-0 text-primary" />
+                            <span>Tarif Adil & Dikonfirmasi di Awal</span>
+                        </div>
+                    </div>
+
+                    <!-- Pilar 3: Ketentuan Kirim -->
+                    <div class="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col justify-between">
+                        <div>
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
+                                <Clock class="w-5 h-5" />
+                            </div>
+                            <h3 class="font-headline font-bold text-base text-secondary-900 mb-1.5">
+                                Jadwal & Ketentuan Kirim
+                            </h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Pesanan terkonfirmasi sebelum <span class="font-semibold text-secondary-900">14.00 WIB</span> dikirim di hari yang sama (Sameday). Pengiriman dilengkapi tenaga bongkar muat toko berhati-hati menangani barang pecah belah.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-[11px] text-blue-700 font-bold">
+                            <CheckCircle2 class="w-4 h-4 shrink-0 text-blue-600" />
+                            <span>Sameday & Bebas Khawatir Rusak</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-header Armada Mandiri -->
+                <div class="mb-5 flex items-center justify-between">
+                    <h3 class="font-headline font-bold text-base text-secondary-900 flex items-center gap-2">
+                        <span>Pilihan Armada Mandiri Toko</span>
+                        <span class="text-xs font-normal text-slate-500">(Disesuaikan dengan volume barang)</span>
+                    </h3>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -943,21 +1023,21 @@ const addProductDirect = (product) => {
                     </div>
                 </div>
 
-                <!-- Jangkauan Pengiriman Notice -->
+                <!-- Jangkauan Pengiriman Notice & WhatsApp Consultation -->
                 <div class="mt-8 p-4 bg-white rounded-xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
                     <div class="flex items-center gap-3">
                         <MapPin class="w-5 h-5 text-primary shrink-0" />
                         <div>
                             <span class="font-bold text-secondary-900">Jangkauan Wilayah Layanan:</span>
-                            <span class="text-slate-600 ml-1">Kota Bandung, Kota Cimahi, Kab. Bandung, dan Kab. Bandung Barat.</span>
+                            <span class="text-slate-600 ml-1">Kota Bandar Lampung, Kab. Lampung Selatan (Natar, Jati Agung, Tj. Bintang), dan Kab. Pesawaran.</span>
                         </div>
                     </div>
                     <a
-                        :href="`https://wa.me/${setting?.store_whatsapp || '6281234567890'}?text=${encodeURIComponent('Halo Admin MATERIALKU, saya mau tanya jangkauan kirim ke daerah saya...')}`"
+                        :href="`https://wa.me/${setting?.store_whatsapp || '6281234567890'}?text=${encodeURIComponent('Halo Admin MATERIALKU, saya mau tanya estimasi ongkir dan jangkauan kirim ke lokasi saya...')}`"
                         target="_blank"
                         class="text-primary font-bold hover:underline inline-flex items-center gap-1 shrink-0"
                     >
-                        <span>Cek Lokasi Pengantaran Anda</span>
+                        <span>Cek Estimasi Ongkir ke Alamat Anda</span>
                         <ArrowRight class="w-3.5 h-3.5" />
                     </a>
                 </div>
@@ -1019,20 +1099,20 @@ const addProductDirect = (product) => {
             </div>
         </section>
 
-        <!-- 7. TOKO FISIK MITRA & GUDANG MATERIAL -->
-        <section class="py-16 bg-[#F8FAFC] border-b border-slate-200">
+        <!-- 7. TOKO FISIK MITRA & GUDANG MATERIAL (HUBUNGI TOKO) -->
+        <section id="kontak-toko" class="py-16 bg-[#F8FAFC] border-b border-slate-200 scroll-mt-20">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="bg-white rounded-3xl border border-slate-200 p-8 sm:p-10 shadow-sm">
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                         <div class="lg:col-span-7 space-y-5">
                             <span class="bg-primary-50 text-primary-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                                TOKO MITRA RESMI
+                                HUBUNGI TOKO & PUSAT MATERIAL
                             </span>
                             <h2 class="font-headline font-extrabold text-2xl sm:text-3xl text-secondary-900">
                                 TB. Mandiri Sejahtera Abadi
                             </h2>
                             <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                                Gedung pusat keagenan semen, keramik grosir, cat dinding, serta besi konstruksi bersertifikasi SNI. Memiliki armada truk mandiri siap kirim ke seluruh wilayah Bandung Raya.
+                                Gedung pusat keagenan semen, keramik grosir, cat dinding, serta besi konstruksi bersertifikasi SNI. Memiliki armada truk mandiri siap kirim ke seluruh wilayah Lampung.
                             </p>
 
                             <div class="space-y-3 pt-2 text-xs text-slate-600">
