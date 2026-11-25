@@ -1,7 +1,9 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import {
     MapPin,
     Clock,
@@ -19,12 +21,161 @@ import {
     XCircle,
     Ruler,
     ShoppingCart,
-    Instagram,
-    Facebook,
+    Navigation,
+    Layers,
+    ZoomIn,
+    Compass,
+    Building2,
+    Truck,
 } from 'lucide-vue-next';
 
 const props = defineProps({
     setting: Object,
+});
+
+// --- Leaflet Web GIS State ---
+const mapContainer = ref(null);
+let map = null;
+let storeMarker = null;
+let circleZone1 = null;
+let circleZone2 = null;
+
+// Koordinat Fisik TB. Mandiri Sejahtera Abadi (By Pass Soekarno-Hatta, Bandar Lampung)
+const storeCoords = [-5.3850, 105.2850];
+
+const showZone1 = ref(true);
+const showZone2 = ref(true);
+
+const initWebGis = () => {
+    if (!mapContainer.value) return;
+
+    // Inisialisasi Peta Leaflet
+    map = L.map(mapContainer.value, {
+        center: storeCoords,
+        zoom: 12,
+        zoomControl: true,
+        scrollWheelZoom: true,
+    });
+
+    // Layer Peta Dasar: OpenStreetMap Standard
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Web GIS MATERIALKU',
+    }).addTo(map);
+
+    // Kustom Pin Marker HTML/Tailwind
+    const customIcon = L.divIcon({
+        className: 'custom-gis-marker',
+        html: `
+            <div style="position: relative; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px;">
+                <div style="position: absolute; width: 40px; height: 40px; background: rgba(249, 115, 22, 0.35); border-radius: 9999px; animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+                <div style="position: relative; width: 36px; height: 36px; background: #ea580c; color: white; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); border: 2.5px solid white; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                    🏢
+                </div>
+            </div>
+        `,
+        iconSize: [44, 44],
+        iconAnchor: [22, 22],
+        popupAnchor: [0, -20],
+    });
+
+    // Marker Lokasi Toko
+    storeMarker = L.marker(storeCoords, { icon: customIcon }).addTo(map);
+
+    const storeName = props.setting?.store_name || 'TB. Mandiri Sejahtera Abadi';
+    const storeAddress = props.setting?.store_address || 'Jl. Soekarno-Hatta No. 88, By Pass, Kota Bandar Lampung';
+
+    const popupHtml = `
+        <div style="font-family: inherit; font-size: 12px; color: #1e293b; max-width: 240px; padding: 4px;">
+            <div style="display: inline-block; background: #ffedd5; color: #c2410c; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 9999px; text-transform: uppercase; margin-bottom: 6px;">
+                🏢 PUSAT GUDANG & TOKO FISIK
+            </div>
+            <h4 style="font-weight: 800; font-size: 14px; margin: 0 0 4px 0; color: #0f172a;">${storeName}</h4>
+            <p style="margin: 0 0 8px 0; font-size: 11px; color: #475569; line-height: 1.4;">${storeAddress}</p>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px; font-size: 10px; margin-bottom: 8px;">
+                <p style="margin: 0 0 2px 0;"><strong>Jam Operasional:</strong> 07.00 - 17.00 WIB</p>
+                <p style="margin: 0;"><strong>Kapasitas Stok:</strong> 500+ Ton Material SNI</p>
+            </div>
+            <a href="https://maps.google.com/?q=${encodeURIComponent(storeAddress)}" target="_blank" style="display: block; text-align: center; background: #ea580c; color: white; padding: 6px 12px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 11px;">
+                Buka Rute Google Maps ↗
+            </a>
+        </div>
+    `;
+
+    storeMarker.bindPopup(popupHtml).openPopup();
+
+    // Layer Analisis Spasial GIS: Buffer Zona 1 (Radius 5 km)
+    circleZone1 = L.circle(storeCoords, {
+        color: '#10b981',
+        fillColor: '#10b981',
+        fillOpacity: 0.16,
+        radius: 5000,
+        weight: 2,
+        dashArray: '6, 6',
+    }).addTo(map);
+
+    circleZone1.bindTooltip(
+        '<b>Zona 1 (Radius 5 km)</b><br>Tanjung Karang, Way Halim, Sukarame, Kedaton.<br><i>Pengiriman Sameday Pickup & Promo Bebas Ongkir</i>',
+        { sticky: true }
+    );
+
+    // Layer Analisis Spasial GIS: Buffer Zona 2 (Radius 12 km)
+    circleZone2 = L.circle(storeCoords, {
+        color: '#f97316',
+        fillColor: '#f97316',
+        fillOpacity: 0.08,
+        radius: 12000,
+        weight: 2,
+        dashArray: '8, 8',
+    }).addTo(map);
+
+    circleZone2.bindTooltip(
+        '<b>Zona 2 (Radius 12 km)</b><br>Rajabasa, Natar, Jati Agung / ITERA, Teluk Betung.<br><i>Pengiriman Armada Truk Engkel Material Berat</i>',
+        { sticky: true }
+    );
+};
+
+// Toggle Layer GIS
+const toggleZone1 = () => {
+    showZone1.value = !showZone1.value;
+    if (!map || !circleZone1) return;
+    if (showZone1.value) {
+        circleZone1.addTo(map);
+    } else {
+        map.removeLayer(circleZone1);
+    }
+};
+
+const toggleZone2 = () => {
+    showZone2.value = !showZone2.value;
+    if (!map || !circleZone2) return;
+    if (showZone2.value) {
+        circleZone2.addTo(map);
+    } else {
+        map.removeLayer(circleZone2);
+    }
+};
+
+const focusStore = () => {
+    if (!map) return;
+    map.setView(storeCoords, 14, { animate: true });
+    if (storeMarker) storeMarker.openPopup();
+};
+
+const fitAllZones = () => {
+    if (!map || !circleZone2) return;
+    map.fitBounds(circleZone2.getBounds(), { padding: [30, 30], animate: true });
+};
+
+onMounted(() => {
+    initWebGis();
+});
+
+onBeforeUnmount(() => {
+    if (map) {
+        map.remove();
+        map = null;
+    }
 });
 
 // --- FAQ State ---
@@ -87,7 +238,7 @@ const operasionalHours = [
 </script>
 
 <template>
-    <Head title="Hubungi Toko – MATERIALKU" />
+    <Head title="Hubungi Toko – Web GIS MATERIALKU" />
     <PublicLayout>
         <!-- ===== HERO SECTION ===== -->
         <section class="bg-gradient-to-br from-orange-50 via-white to-slate-50 py-16 border-b border-slate-100">
@@ -96,7 +247,7 @@ const operasionalHours = [
                     Kami Siap Membantu
                 </span>
                 <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800 mb-4">
-                    Hubungi Toko Kami
+                    Hubungi Toko & Pemetaan Lokasi
                 </h1>
                 <p class="text-slate-500 text-lg max-w-2xl mx-auto">
                     Ada pertanyaan soal produk, harga grosir, atau pemesanan? Tim
@@ -126,20 +277,18 @@ const operasionalHours = [
                         <MapPin class="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                        <h3 class="font-bold text-slate-800 text-lg mb-1">Alamat Toko</h3>
+                        <h3 class="font-bold text-slate-800 text-lg mb-1">Alamat Toko & Gudang</h3>
                         <p class="text-slate-600 text-sm leading-relaxed">
                             {{ setting?.store_address ?? 'Jl. Soekarno-Hatta No. 88, By Pass, Kota Bandar Lampung' }}
                         </p>
                     </div>
-                    <a
-                        href="https://maps.google.com/?q=Jl.+Soekarno-Hatta+No.+88+Bandar+Lampung"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="inline-flex items-center gap-1 text-primary text-sm font-semibold hover:underline mt-auto"
+                    <button
+                        @click="focusStore"
+                        class="inline-flex items-center gap-1 text-primary text-sm font-semibold hover:underline mt-auto cursor-pointer"
                     >
-                        Lihat di Google Maps
+                        Lihat di Web GIS
                         <ArrowRight class="w-4 h-4" />
-                    </a>
+                    </button>
                 </div>
 
                 <!-- Jam Operasional -->
@@ -182,7 +331,7 @@ const operasionalHours = [
                             >
                                 <MessageCircle class="w-5 h-5 text-green-600 shrink-0" />
                                 <div>
-                                    <p class="text-xs text-slate-500 leading-none mb-1">WhatsApp</p>
+                                    <p class="text-xs text-slate-500 leading-none mb-1">WhatsApp CS</p>
                                     <p class="font-semibold text-slate-800 text-sm group-hover:text-green-700">
                                         +{{ setting?.store_whatsapp ?? '6281234567890' }}
                                     </p>
@@ -206,29 +355,99 @@ const operasionalHours = [
             </div>
         </section>
 
-        <!-- ===== GOOGLE MAPS EMBED ===== -->
+        <!-- ===== WEB GIS INTERAKTIF LEAFLET ===== -->
         <section class="max-w-5xl mx-auto px-4 pb-14">
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                <div class="px-7 pt-7 pb-4">
-                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                        <MapPin class="w-5 h-5 text-primary" />
-                        Lokasi Toko
-                    </h2>
-                    <p class="text-slate-500 text-sm mt-1">
-                        {{ setting?.store_address ?? 'Jl. Soekarno-Hatta No. 88, By Pass, Kota Bandar Lampung' }}
-                    </p>
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                <!-- GIS Header & Layer Controls -->
+                <div class="p-6 sm:p-7 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-slate-50/60">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-orange-100 text-primary uppercase tracking-wider">
+                                Web GIS Pemetaan
+                            </span>
+                            <span class="text-xs text-slate-400">•</span>
+                            <span class="text-xs text-slate-500 font-medium">OpenStreetMap & Leaflet.js</span>
+                        </div>
+                        <h2 class="text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                            <Compass class="w-5 h-5 text-primary" />
+                            Peta Spasial & Radius Jangkauan Armada
+                        </h2>
+                        <p class="text-slate-500 text-xs mt-1">
+                            Pusat Gudang: <span class="font-semibold text-slate-700">{{ setting?.store_address ?? 'Jl. Soekarno-Hatta No. 88, By Pass, Kota Bandar Lampung' }}</span>
+                        </p>
+                    </div>
+
+                    <!-- GIS Interactive Toolbar -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <!-- Toggle Zona 1 -->
+                        <button
+                            type="button"
+                            @click="toggleZone1"
+                            :class="showZone1 ? 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold' : 'bg-slate-100 text-slate-400 border-slate-200'"
+                            class="px-3 py-1.5 rounded-xl border text-xs transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                        >
+                            <span class="w-2.5 h-2.5 rounded-full" :class="showZone1 ? 'bg-emerald-500' : 'bg-slate-300'"></span>
+                            <span>Zona 1 (5 km)</span>
+                        </button>
+
+                        <!-- Toggle Zona 2 -->
+                        <button
+                            type="button"
+                            @click="toggleZone2"
+                            :class="showZone2 ? 'bg-orange-50 text-orange-800 border-orange-300 font-bold' : 'bg-slate-100 text-slate-400 border-slate-200'"
+                            class="px-3 py-1.5 rounded-xl border text-xs transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                        >
+                            <span class="w-2.5 h-2.5 rounded-full" :class="showZone2 ? 'bg-orange-500' : 'bg-slate-300'"></span>
+                            <span>Zona 2 (12 km)</span>
+                        </button>
+
+                        <!-- Fokus Toko -->
+                        <button
+                            type="button"
+                            @click="focusStore"
+                            class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-2xs cursor-pointer"
+                        >
+                            <Navigation class="w-3.5 h-3.5" />
+                            <span>Titik Toko</span>
+                        </button>
+
+                        <!-- Fit Bounds Seluruh Zona -->
+                        <button
+                            type="button"
+                            @click="fitAllZones"
+                            class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow-2xs cursor-pointer"
+                        >
+                            <ZoomIn class="w-3.5 h-3.5" />
+                            <span>Semua Zona</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="relative w-full h-72 md:h-96">
-                    <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d63436.49055984248!2d105.19003!3d-5.38966!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e40db4f70f4aef5%3A0x82cb5a5e4bb49a9f!2sBandar%20Lampung!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid"
-                        width="100%"
-                        height="100%"
-                        style="border:0;"
-                        allowfullscreen=""
-                        loading="lazy"
-                        referrerpolicy="no-referrer-when-downgrade"
-                        class="absolute inset-0"
-                    ></iframe>
+
+                <!-- Leaflet Map Container -->
+                <div class="relative w-full h-[450px] sm:h-[520px] bg-slate-100 z-0">
+                    <div ref="mapContainer" class="w-full h-full z-0"></div>
+
+                    <!-- GIS Legend Overlay (Pojok Bawah Kiri) -->
+                    <div class="absolute bottom-4 left-4 z-[400] bg-white/95 backdrop-blur-md p-3.5 rounded-2xl border border-slate-200/90 shadow-lg max-w-xs text-xs space-y-2 pointer-events-auto">
+                        <p class="font-bold text-slate-900 flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
+                            <Layers class="w-3.5 h-3.5 text-primary" />
+                            <span>Legenda Analisis Zonasi</span>
+                        </p>
+                        <div class="space-y-1.5 text-[11px]">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-emerald-500/20 border-2 border-emerald-500 shrink-0"></span>
+                                <span class="text-slate-700"><strong>Zona 1 (Radius 5 km):</strong> Pickup Sameday</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-orange-500/20 border-2 border-orange-500 shrink-0"></span>
+                                <span class="text-slate-700"><strong>Zona 2 (Radius 12 km):</strong> Truk Engkel Berat</span>
+                            </div>
+                            <div class="flex items-center gap-2 pt-0.5">
+                                <span class="text-sm shrink-0">🏢</span>
+                                <span class="text-slate-700"><strong>Gudang & Toko:</strong> Stok 500+ Ton</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -303,7 +522,7 @@ const operasionalHours = [
                 >
                     <button
                         @click="toggleFaq(faq.id)"
-                        class="w-full flex items-center gap-4 px-6 py-5 text-left hover:bg-slate-50 transition"
+                        class="w-full flex items-center gap-4 px-6 py-5 text-left hover:bg-slate-50 transition cursor-pointer"
                     >
                         <div class="w-9 h-9 bg-orange-50 rounded-lg flex items-center justify-center shrink-0">
                             <component :is="faq.icon" class="w-5 h-5 text-primary" />
