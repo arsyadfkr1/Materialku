@@ -6,6 +6,7 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
+import { Building2, ExternalLink } from 'lucide-vue-next';
 
 const showingNavigationDropdown = ref(false);
 </script>
@@ -22,10 +23,14 @@ const showingNavigationDropdown = ref(false);
                         <div class="flex">
                             <!-- Logo -->
                             <div class="flex shrink-0 items-center">
-                                <Link :href="route('dashboard')">
-                                    <ApplicationLogo
-                                        class="block h-9 w-auto fill-current text-gray-800"
-                                    />
+                                <Link :href="route('dashboard')" class="flex items-center gap-2.5">
+                                    <div class="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-white shadow-xs">
+                                        <Building2 class="w-4 h-4" />
+                                    </div>
+                                    <span class="font-headline font-black text-base text-slate-900 tracking-tight flex items-center gap-1.5">
+                                        <span>MATERIALKU</span>
+                                        <span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-orange-100 text-primary">ADMIN</span>
+                                    </span>
                                 </Link>
                             </div>
 
@@ -37,8 +42,16 @@ const showingNavigationDropdown = ref(false);
                                     :href="route('dashboard')"
                                     :active="route().current('dashboard')"
                                 >
-                                    Dashboard
+                                    Manajemen Pesanan
                                 </NavLink>
+                                <a
+                                    :href="route('home')"
+                                    target="_blank"
+                                    class="inline-flex items-center gap-1 px-1 pt-1 border-b-2 border-transparent text-sm font-medium leading-5 text-slate-500 hover:text-primary transition"
+                                >
+                                    <span>Web Publik</span>
+                                    <ExternalLink class="w-3.5 h-3.5" />
+                                </a>
                             </div>
                         </div>
 
@@ -144,8 +157,15 @@ const showingNavigationDropdown = ref(false);
                             :href="route('dashboard')"
                             :active="route().current('dashboard')"
                         >
-                            Dashboard
+                            Manajemen Pesanan
                         </ResponsiveNavLink>
+                        <a
+                            :href="route('home')"
+                            target="_blank"
+                            class="block w-full ps-3 pe-4 py-2 border-l-4 border-transparent text-start text-base font-medium text-slate-600 hover:text-primary transition"
+                        >
+                            Lihat Web Toko ↗
+                        </a>
                     </div>
 
                     <!-- Responsive Settings Options -->

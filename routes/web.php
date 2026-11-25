@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CatalogController;
@@ -31,10 +32,11 @@ Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.in
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 Route::get('/pesanan/{orderCode}', [OrderSummaryController::class, 'show'])->name('order.summary');
 
-// Dashboard Admin (Wajib Login)
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Dashboard & Manajemen Pesanan Admin (Wajib Login)
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [AdminOrderController::class, 'index'])->name('dashboard');
+    Route::patch('/admin/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.update-status');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
