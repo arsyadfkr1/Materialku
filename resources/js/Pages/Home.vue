@@ -1108,7 +1108,7 @@ const addProductDirect = (product) => {
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                         <div class="lg:col-span-7 space-y-5">
                             <span class="bg-primary-50 text-primary-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                                HUBUNGI TOKO & PUSAT MATERIAL
+                                LOKASI GUDANG & TOKO FISIK
                             </span>
                             <h2 class="font-headline font-extrabold text-2xl sm:text-3xl text-secondary-900">
                                 TB. Mandiri Sejahtera Abadi
@@ -1122,7 +1122,7 @@ const addProductDirect = (product) => {
                                     <MapPin class="w-4 h-4 text-primary shrink-0 mt-0.5" />
                                     <div>
                                         <p class="font-bold text-secondary-900">Alamat Toko & Gudang:</p>
-                                        <p>{{ setting?.store_address || 'Jl. Raya Industri Timur No. 45, Kawasan Niaga' }}</p>
+                                        <p>{{ setting?.store_address || 'Jl. Soekarno-Hatta No. 88, By Pass, Kota Bandar Lampung' }}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-start gap-3">
@@ -1143,6 +1143,14 @@ const addProductDirect = (product) => {
                                     <MessageSquare class="w-4 h-4" />
                                     <span>Chat Langsung Admin Toko</span>
                                 </a>
+
+                                <Link
+                                    :href="route('contact.index')"
+                                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-50 text-secondary-900 border border-slate-300 rounded-xl text-xs font-bold transition shadow-xs group"
+                                >
+                                    <span>Buka Peta & Info Lengkap</span>
+                                    <ArrowRight class="w-4 h-4 text-primary group-hover:translate-x-0.5 transition" />
+                                </Link>
                             </div>
                         </div>
 
