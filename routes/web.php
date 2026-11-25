@@ -7,6 +7,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderSummaryController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ShippingInfoController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -17,6 +18,7 @@ Route::get('/katalog', [CatalogController::class, 'index'])->name('catalog.index
 Route::get('/katalog/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
 Route::get('/api/search/suggestions', [CatalogController::class, 'suggestions'])->name('api.search.suggestions');
 Route::get('/informasi-pengiriman', [ShippingInfoController::class, 'index'])->name('shipping.info');
+Route::get('/hubungi-toko', [ContactController::class, 'index'])->name('contact.index');
 Route::get('/keranjang', [CartController::class, 'index'])->name('cart.index');
 
 // Kalkulator Material

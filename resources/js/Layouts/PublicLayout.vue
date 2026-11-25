@@ -365,12 +365,12 @@ if (typeof window !== 'undefined') {
                     >
                         Informasi Pengiriman
                     </Link>
-                    <a
-                        :href="route().current('home') ? '#kontak-toko' : route('home') + '#kontak-toko'"
-                        class="text-slate-600 hover:text-primary transition"
+                    <Link
+                        :href="route('contact.index')"
+                        :class="route().current('contact.index') ? 'text-primary border-b-2 border-primary pb-1 font-bold' : 'text-slate-600 hover:text-primary transition'"
                     >
                         Hubungi Toko
-                    </a>
+                    </Link>
                 </nav>
             </div>
 
@@ -440,7 +440,7 @@ if (typeof window !== 'undefined') {
                     </Link>
                     <a :href="route().current('home') ? '#cara-pesan' : route('home') + '#cara-pesan'" class="py-2 text-slate-700 hover:text-primary">Cara Pemesanan</a>
                     <Link :href="route('shipping.info')" class="py-2 text-slate-700 hover:text-primary">Informasi Pengiriman</Link>
-                    <a :href="route().current('home') ? '#kontak-toko' : route('home') + '#kontak-toko'" class="py-2 text-slate-700 hover:text-primary">Hubungi Toko</a>
+                    <Link :href="route('contact.index')" :class="route().current('contact.index') ? 'py-2 text-primary font-bold' : 'py-2 text-slate-700 hover:text-primary'">Hubungi Toko</Link>
                     <Link :href="route('login')" class="py-2 text-primary font-bold">Masuk Admin Toko</Link>
                 </div>
             </div>

@@ -20,7 +20,9 @@ import {
     Phone,
     HelpCircle,
     Info,
-    ExternalLink
+    ExternalLink,
+    BrickWall,
+    DoorClosed
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -503,7 +505,7 @@ const addProductDirect = (product) => {
                         class="p-5 rounded-2xl bg-slate-50 hover:bg-white border border-slate-200 hover:border-primary/40 hover:shadow-lg transition group flex flex-col items-center text-center"
                     >
                         <div class="w-14 h-14 rounded-2xl bg-slate-100 text-secondary-700 flex items-center justify-center mb-3 group-hover:scale-110 transition duration-300">
-                            <Building2 class="w-7 h-7" />
+                            <BrickWall class="w-7 h-7" />
                         </div>
                         <h3 class="font-headline font-bold text-sm text-secondary-900 group-hover:text-primary transition">
                             Semen & Mortar
@@ -567,7 +569,7 @@ const addProductDirect = (product) => {
                         class="p-5 rounded-2xl bg-slate-50 hover:bg-white border border-slate-200 hover:border-primary/40 hover:shadow-lg transition group flex flex-col items-center text-center"
                     >
                         <div class="w-14 h-14 rounded-2xl bg-slate-100 text-secondary-700 flex items-center justify-center mb-3 group-hover:scale-110 transition duration-300">
-                            <Building2 class="w-7 h-7" />
+                            <DoorClosed class="w-7 h-7" />
                         </div>
                         <h3 class="font-headline font-bold text-sm text-secondary-900 group-hover:text-primary transition">
                             Pintu & Sanitary
