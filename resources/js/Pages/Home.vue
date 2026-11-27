@@ -467,7 +467,92 @@ const addProductDirect = (product) => {
             </div>
         </section>
 
-        <!-- 2. KATEGORI MATERIAL TERBANYAK DICARI -->
+        <!-- 2. TOKO FISIK MITRA & GUDANG MATERIAL (HUBUNGI TOKO) -->
+        <section id="kontak-toko" class="py-12 bg-[#F8FAFC] border-b border-slate-200 scroll-mt-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-white rounded-3xl border border-slate-200 p-8 sm:p-10 shadow-sm">
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                        <div class="lg:col-span-7 space-y-5">
+                            <span class="bg-primary-50 text-primary-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                                LOKASI GUDANG & TOKO FISIK
+                            </span>
+                            <h2 class="font-headline font-extrabold text-2xl sm:text-3xl text-secondary-900">
+                                TB. Mandiri Sejahtera Abadi
+                            </h2>
+                            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                                Gedung pusat keagenan semen, keramik grosir, cat dinding, serta besi konstruksi bersertifikasi SNI. Memiliki armada truk mandiri siap kirim ke seluruh wilayah Lampung.
+                            </p>
+
+                            <div class="space-y-3 pt-2 text-xs text-slate-600">
+                                <div class="flex items-start gap-3">
+                                    <MapPin class="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                                    <div>
+                                        <p class="font-bold text-secondary-900">Alamat Toko & Gudang:</p>
+                                        <p>{{ setting?.store_address || 'Jl. Soekarno-Hatta No. 88, By Pass, Kota Bandar Lampung' }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3">
+                                    <Clock class="w-4 h-4 text-tertiary-600 shrink-0 mt-0.5" />
+                                    <div>
+                                        <p class="font-bold text-secondary-900">Jam Operasional Layanan Toko:</p>
+                                        <p>Senin - Sabtu: 07.30 - 17.00 WIB • Minggu: 08.00 - 14.00 WIB</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 flex flex-wrap gap-3">
+                                <a
+                                    :href="`https://wa.me/${setting?.store_whatsapp || '6281234567890'}?text=${encodeURIComponent('Halo Toko Mandiri Sejahtera, saya ingin tanya ketersediaan stok...')}`"
+                                    target="_blank"
+                                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-tertiary-600 hover:bg-tertiary-500 text-white rounded-xl text-xs font-bold transition shadow-sm"
+                                >
+                                    <MessageSquare class="w-4 h-4" />
+                                    <span>Chat Langsung Admin Toko</span>
+                                </a>
+
+                                <Link
+                                    :href="route('contact.index')"
+                                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-50 text-secondary-900 border border-slate-300 rounded-xl text-xs font-bold transition shadow-xs group"
+                                >
+                                    <span>Buka Peta & Info Lengkap</span>
+                                    <ArrowRight class="w-4 h-4 text-primary group-hover:translate-x-0.5 transition" />
+                                </Link>
+                            </div>
+                        </div>
+
+                        <!-- Warehouse Photo Card (Sesuai Wireframe Toko & Gudang) -->
+                        <div class="lg:col-span-5 relative rounded-2xl overflow-hidden shadow-lg border border-slate-200 group h-full min-h-[280px] bg-slate-900">
+                            <img
+                                src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=900&auto=format&fit=crop"
+                                alt="Gedung Pusat Toko TB. Mandiri Sejahtera Abadi"
+                                class="w-full h-full object-cover min-h-[280px] group-hover:scale-105 transition duration-500 opacity-90"
+                            />
+                            <!-- Elegant Dark Gradient Overlay (Hanya di bawah untuk keterbacaan teks) -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+
+                            <!-- Badges Overlay -->
+                            <div class="absolute top-4 left-4">
+                                <span class="bg-primary/95 text-white text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
+                                    GUDANG PUSAT 500+ TON
+                                </span>
+                            </div>
+
+                            <div class="absolute bottom-4 left-4 right-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                                <span class="bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700/80 font-bold text-xs text-white shadow-md">
+                                    🏢 Gedung Pusat Toko TB. Mandiri Sejahtera
+                                </span>
+                                <span class="bg-tertiary-600/95 text-white px-2.5 py-1 rounded-lg font-bold text-[11px] shadow-sm flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                                    Stok Siap Kirim
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. KATEGORI MATERIAL TERBANYAK DICARI -->
         <section class="py-16 bg-white border-b border-slate-200">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center max-w-2xl mx-auto mb-12">
@@ -1095,91 +1180,6 @@ const addProductDirect = (product) => {
                         <div class="pt-2 border-t border-slate-200/80">
                             <h4 class="font-bold text-xs text-secondary-900">Hendra Wijaya</h4>
                             <p class="text-[11px] text-slate-500">Kontraktor Sipil CV. Bangun Jaya</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 7. TOKO FISIK MITRA & GUDANG MATERIAL (HUBUNGI TOKO) -->
-        <section id="kontak-toko" class="py-16 bg-[#F8FAFC] border-b border-slate-200 scroll-mt-20">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="bg-white rounded-3xl border border-slate-200 p-8 sm:p-10 shadow-sm">
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                        <div class="lg:col-span-7 space-y-5">
-                            <span class="bg-primary-50 text-primary-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                                LOKASI GUDANG & TOKO FISIK
-                            </span>
-                            <h2 class="font-headline font-extrabold text-2xl sm:text-3xl text-secondary-900">
-                                TB. Mandiri Sejahtera Abadi
-                            </h2>
-                            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                                Gedung pusat keagenan semen, keramik grosir, cat dinding, serta besi konstruksi bersertifikasi SNI. Memiliki armada truk mandiri siap kirim ke seluruh wilayah Lampung.
-                            </p>
-
-                            <div class="space-y-3 pt-2 text-xs text-slate-600">
-                                <div class="flex items-start gap-3">
-                                    <MapPin class="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                                    <div>
-                                        <p class="font-bold text-secondary-900">Alamat Toko & Gudang:</p>
-                                        <p>{{ setting?.store_address || 'Jl. Soekarno-Hatta No. 88, By Pass, Kota Bandar Lampung' }}</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start gap-3">
-                                    <Clock class="w-4 h-4 text-tertiary-600 shrink-0 mt-0.5" />
-                                    <div>
-                                        <p class="font-bold text-secondary-900">Jam Operasional Layanan Toko:</p>
-                                        <p>Senin - Sabtu: 07.30 - 17.00 WIB • Minggu: 08.00 - 14.00 WIB</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="pt-2 flex flex-wrap gap-3">
-                                <a
-                                    :href="`https://wa.me/${setting?.store_whatsapp || '6281234567890'}?text=${encodeURIComponent('Halo Toko Mandiri Sejahtera, saya ingin tanya ketersediaan stok...')}`"
-                                    target="_blank"
-                                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-tertiary-600 hover:bg-tertiary-500 text-white rounded-xl text-xs font-bold transition shadow-sm"
-                                >
-                                    <MessageSquare class="w-4 h-4" />
-                                    <span>Chat Langsung Admin Toko</span>
-                                </a>
-
-                                <Link
-                                    :href="route('contact.index')"
-                                    class="inline-flex items-center gap-2 px-5 py-2.5 bg-white hover:bg-slate-50 text-secondary-900 border border-slate-300 rounded-xl text-xs font-bold transition shadow-xs group"
-                                >
-                                    <span>Buka Peta & Info Lengkap</span>
-                                    <ArrowRight class="w-4 h-4 text-primary group-hover:translate-x-0.5 transition" />
-                                </Link>
-                            </div>
-                        </div>
-
-                        <!-- Warehouse Photo Card (Sesuai Wireframe Toko & Gudang) -->
-                        <div class="lg:col-span-5 relative rounded-2xl overflow-hidden shadow-lg border border-slate-200 group h-full min-h-[280px] bg-slate-900">
-                            <img
-                                src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=900&auto=format&fit=crop"
-                                alt="Gedung Pusat Toko TB. Mandiri Sejahtera Abadi"
-                                class="w-full h-full object-cover min-h-[280px] group-hover:scale-105 transition duration-500 opacity-90"
-                            />
-                            <!-- Elegant Dark Gradient Overlay (Hanya di bawah untuk keterbacaan teks) -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
-
-                            <!-- Badges Overlay -->
-                            <div class="absolute top-4 left-4">
-                                <span class="bg-primary/95 text-white text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
-                                    GUDANG PUSAT 500+ TON
-                                </span>
-                            </div>
-
-                            <div class="absolute bottom-4 left-4 right-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                                <span class="bg-slate-900/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700/80 font-bold text-xs text-white shadow-md">
-                                    🏢 Gedung Pusat Toko TB. Mandiri Sejahtera
-                                </span>
-                                <span class="bg-tertiary-600/95 text-white px-2.5 py-1 rounded-lg font-bold text-[11px] shadow-sm flex items-center gap-1.5">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-                                    Stok Siap Kirim
-                                </span>
-                            </div>
                         </div>
                     </div>
                 </div>
