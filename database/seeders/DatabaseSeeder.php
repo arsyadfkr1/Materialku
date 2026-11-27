@@ -293,5 +293,8 @@ class DatabaseSeeder extends Seeder
         foreach ($items as $item) {
             Material::updateOrCreate(['slug' => $item['slug']], $item);
         }
+
+        // 5. Pesanan Sampel (Menunggu, Diproses, Dikirim, Selesai, Dibatalkan)
+        $this->call(SampleOrderSeeder::class);
     }
 }
