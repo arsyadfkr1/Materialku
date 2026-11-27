@@ -19,7 +19,8 @@ import {
     CheckCircle2,
     Building2,
     ShieldCheck,
-    Loader2
+    Loader2,
+    Lock
 } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -321,6 +322,16 @@ if (typeof window !== 'undefined') {
                             <span class="hidden sm:inline text-xs font-bold text-secondary-800">
                                 {{ formatRupiah(cart.totalPrice) }}
                             </span>
+                        </Link>
+
+                        <!-- Admin Login Icon Button -->
+                        <Link
+                            :href="$page.props.auth?.user ? route('dashboard') : route('login')"
+                            class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold text-slate-600 hover:text-primary bg-white hover:bg-slate-50 border border-slate-200 hover:border-primary/40 rounded-xl transition shadow-2xs"
+                            :title="$page.props.auth?.user ? 'Buka Dashboard Admin' : 'Login Admin Toko'"
+                        >
+                            <Lock class="w-4 h-4 text-slate-500" />
+                            <span class="hidden xl:inline">{{ $page.props.auth?.user ? 'Dashboard' : 'Admin' }}</span>
                         </Link>
 
                         <!-- Mobile Menu Toggle -->
@@ -674,8 +685,6 @@ if (typeof window !== 'undefined') {
                 <div class="pt-8 border-t border-secondary-800 text-[11px] text-slate-500 flex flex-col md:flex-row justify-between items-center gap-4">
                     <p>
                         © 2026 <strong>MATERIALKU</strong>. Proyek Akhir Pemrograman Web 2. All rights reserved.
-                        <span class="mx-2">•</span>
-                        <Link :href="route('login')" class="hover:text-slate-300 transition">Login Admin</Link>
                     </p>
                     <p class="text-center md:text-right max-w-xl italic">
                         Batas tanggung jawab: Hasil kalkulator adalah estimasi pembelian belanja, bukan jaminan kecukupan mutlak atau rekomendasi struktur profesional.
